@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Food for Thought</title>
+  <link href="styles.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Berkshire+Swash" rel="stylesheet">
+</head>
+
+<body>
+<div id="app">
+    <!--
+    <center>
+      <div id="top">
+
+        <img src="food_picture.JPG" id="foodPicture"/>
+
+    </div>
+    </center>
+  -->
+  <div id="background" v-bind:style="{ 'background-image': 'url(' + source + ')' }">
+    <div id="main" >
+
+    <center>
+
+      <h1>Food for Thought</h1>
+      <p>We might have access to hundreds upon thousands of recipes today because of our friend google, but sometimes too much information is worse than no information at all. Use our database to not only search for recipes, but also sort those recipes to always get the best of the best for your health.</p>
+    </center>
+
+
+    <br>
+
+    <div class="container">
+      <form class="col">
+        <center>
+        <b><h3>Diet:</h3></b>
+      </center>
+
+        <ul>
+          <li>
+            <input v-model="dietRadio" type="radio" id="balanced" value="balanced" checked>
+            <label for="balanced" title="Protein/Fat/Carb values in 15/35/50 ratio">Balanced</label>
+            <div class="check"></div>
+          </li>
+          <li>
+            <input v-model="dietRadio" type="radio" id="high-protein" value="high-protein">
+            <label for="high-protein" title="More than 50% of total calories from proteins">High-protein</label>
+            <div class="check"></div>
+          </li>
+          <li>
+            <input v-model="dietRadio" type="radio" id="low-fat" value="low-fat">
+            <label for="low-fat" title="Less than 15% of total calories from fat">Low-fat</label>
+            <div class="check"></div>
+          </li>
+          <li>
+            <input v-model="dietRadio" type="radio" id="low-carb" value="low-carb">
+            <label for="low-carb" title="Less than 20% of total calories from carbs">Low-carb</label>
+            <div class="check"></div>
+          </li>
+          <li>
+            <input v-model="dietRadio" type="radio" id="noneDiet" value="">
+            <label for="noneDiet">None</label>
+            <div class="check"></div>
+          </li>
+      </ul>
+      </form>
+
+
+      <form class="col">
+        <center>
+        <b><h3>Health:</h3></b>
+      </center>
+        <ul>
+          <li>
+            <input v-model="healthRadio" type="radio" id="alcohol-free" value="alcohol-free" checked>
+            <label for="alcohol-free" title="No alcohol used or contained">Alcohol-free</label>
+            <div class="check"></div>
+          </li>
+          <li>
+            <input v-model="healthRadio" type="radio" id="peanut-free" value="peanut-free">
+            <label for="peanut-free" title="No peanuts or products containing peanuts">Peanut-free</label>
+            <div class="check"></div>
+          </li>
+          <li>
+            <input v-model="healthRadio" type="radio" id="sugar-conscious" value="sugar-conscious">
+            <label for="sugar-conscious" title="Less than 4g of sugar per serving">Sugar-conscious</label>
+            <div class="check"></div>
+          </li>
+          <li>
+            <input v-model="healthRadio" type="radio" id="vegan" value="vegan">
+            <label for="vegan" title="No meat, poultry, fish, dairy, eggs or honey">Vegan</label>
+            <div class="check"></div>
+          </li>
+          <li>
+            <input v-model="healthRadio" type="radio" id="noneHealth" value="">
+            <label for="noneHealth">None</label>
+            <div class="check"></div>
+          </li>
+        </ul>
+
+      </form>
+    </div>
+
+      <br>
+      <br>
+
+      <center>
+
+        <form v-on:submit.prevent="submitSearch" id="submitArea">
+          <b><label>Search for Recipes</label></b>
+          <input v-model="value" id="foodInput" type="text"></input>
+          <br>
+          <br>
+          <button  class="coolButton">Submit</button>
+          <!-- <input id="foodSubmit" type="submit" value="Submit" class="coolButton"></input> -->
+        </form>
+        <form v-on:submit.prevent="randomSearch" id="submitArea">
+          <button  class="coolButton">Random</button>
+        </form>
+        <form v-on:submit.prevent="showFavorites" id="submitArea">
+          <button  class="coolButton">Favorites</button>
+        </form>
+
+      </center>
+
+      <br>
+      <center v-if="results == 0 && favorite">
+        <h2>No Favorite Recipes Chosen</h2>
+      </center>
+
+      <center v-if="results > 0 && favorite">
+        <h2>Favorites: </h2>
+      </center>
+
+      <center v-if="count > 0 && favorite == false">
+        <hr>
+        <h2 v-if="value !== ''">Search: {{value}}</h2>
+        <h2 v-if="choice !== ''">Search: {{choice}}</h2>
+        <h2>Number of recipes: {{count}}</h2>
+      </center>
+
+      <center>
+      <div v-for="result in results">
+      	  <hr>
+
+          <h3>{{result.label}}</h3>
+          <img :src=result.image>
+          <br>
+          <a :href=result.url><b>Link to recipe</b></a>
+          <p><b>Calories</b>: {{result.calories}}</p>
+          <p><b>Servings</b>: {{result.servings}}</p>
+          <p><b>Calories per Serving</b>: {{result.cps}}</p>
+
+          <p><b>Ingredients</b>:</p>
+          <p>
+          <div v-for="ing in result.ingredients">
+            {{ing.text}}
+          </div>
+          </p>
+
+          <p><b>Cautions</b>:</p>
+          <p>
+          <div v-for="cau in result.cautions">
+            {{cau}}
+          </div>
+          </p>
+
+          <form v-on:submit.prevent="chooseFavorite(result.id)" id="submitArea">
+            <button  v-if="!favorite" class="coolButton">Add To Favorites</button>
+          </form>
+
+	    </div>
+      </center>
+
+    <center>
+      <div id="foodDisplay">
+      </div>
+    </center>
+
+
+<!--
+v-on:submit.prevent="prev"
+v-on:submit.prevent="next"
+-->
+    <center>
+      <button v-if="results.length > 0 && !favorite" v-on:click="choosePrev"  type="button" id="PrevButton" class="coolButton">Previous</button>
+      <button v-if="results.length > 0 && !favorite" v-on:click="chooseNext"  type="button" id="NextButton" class="coolButton">Next</button>
+    </center>
+
+    <br>
+
+    <footer>
+      <center><a href="https://github.com/edenknudson/creativeProject4">Visit my Github</a></center>
+    </footer>
+    </div>
+  </div>
+    </div>
+</body>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-star-rating/dist/star-rating.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js" integrity="sha256-mpnrJ5DpEZZkwkE1ZgkEQQJW/46CSEh/STrZKOB/qoM=" crossorigin="anonymous"></script>
+
+    <script src="script.js" text="type/javascript"></script>
+
+
+
+
+
+
+
+</html>
